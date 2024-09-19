@@ -12,7 +12,7 @@ const Button = (props) => {
     <button
       // className={`h-10 px-6 font-semibold rounded-md ${props.variant} text-black`}
       // konsep desctrukturing
-      className={`h-7 px-4 font-normal rounded-md ${className} text-white`}
+      className={`h-7 px-4 text-sm rounded-md ${className} text-white`}
       type={type}
       // event handler
       onClick={onClick}
