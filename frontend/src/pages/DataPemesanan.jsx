@@ -7,6 +7,8 @@ import Pagination from "../components/elements/pagination/Pagination";
 import Dropdown from "../components/elements/button/Dropdown";
 import TablePemesanan from "../components/elements/table/Table";
 import ModalDelete from "../components/elements/popup/ModalDelete";
+import { Link } from "react-router-dom";
+import { FiPlus } from "react-icons/fi";
 
 const DataPemesananPage = () => {
   const [data, setData] = useState([
@@ -100,7 +102,12 @@ const DataPemesananPage = () => {
       <div className="navbar">
         <div className="bg-gray-300 p-3 rounded px-7 text-fuchsia-900 flex justify-between items-center">
           <span>INI data pemesanan!!</span>
-          <Button className="bg-green-800 hover:bg-green-700">Tambah</Button>
+          <Link to="/data-pemesanan/add">
+            <Button className="flex items-center gap-1 bg-green-800 hover:bg-green-700">
+              <FiPlus strokeWidth={2} className="h-4 w-4" />
+              Tambah
+            </Button>
+          </Link>
         </div>
       </div>
 
