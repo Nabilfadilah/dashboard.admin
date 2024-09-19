@@ -5,8 +5,63 @@ import InputSeacrh from "../components/elements/input/InputSearch";
 import Table from "../components/elements/table/Table";
 import Pagination from "../components/elements/pagination/Pagination";
 import Dropdown from "../components/elements/button/Dropdown";
+import TablePemesanan from "../components/elements/table/Table";
+import ModalDelete from "../components/elements/popup/ModalDelete";
 
 const DataPemesananPage = () => {
+  const [data, setData] = useState([
+    {
+      id: 1,
+      No: "1",
+      Name: "John Doe",
+      Age: 28,
+      Status: "Lunas",
+      Job: "Engineer",
+    },
+    {
+      id: 2,
+      No: "2",
+      Name: "Jane Smith",
+      Age: 34,
+      Status: "Belum Lunas",
+      Job: "Designer",
+    },
+    {
+      id: 3,
+      No: "3",
+      Name: "Sam Green",
+      Age: 22,
+      Status: "Lunas",
+      Job: "Developer",
+    },
+    {
+      id: 4,
+      No: "4",
+      Name: "Sam Green",
+      Age: 22,
+      Status: "Lunas",
+      Job: "Developer",
+    },
+    {
+      id: 5,
+      No: "5",
+      Name: "Sam Green",
+      Age: 22,
+      Status: "Lunas",
+      Job: "Developer",
+    },
+    {
+      id: 6,
+      No: "6",
+      Name: "Sam Green",
+      Age: 22,
+      Status: "Lunas",
+      Job: "Developer",
+    },
+  ]);
+
+  const columns = ["No", "Name", "Age", "Status", "Job", "Aksi"];
+
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 5; // Total halaman (misal)
@@ -24,6 +79,21 @@ const DataPemesananPage = () => {
     statusFilter === "Semua"
       ? data
       : data.filter((item) => item.Status === statusFilter);
+
+  // handle delete data berdasarkan id
+  const handleDelete = async (id) => {
+    // Tampilkan popup konfirmasi delete
+    const konfirmasi = await ModalDelete();
+
+    // Jika konfirmasi delete diterima
+    if (konfirmasi) {
+      // filter data untuk menghapus item dengan id yang sesuai
+      const updatedData = data.filter((item) => item.id !== id);
+      setData(updatedData); // perbaharui state dengan data yang telah dihapus
+    } else {
+      console.log("Error delete data");
+    }
+  };
 
   return (
     <AdminLayouts>
@@ -45,7 +115,11 @@ const DataPemesananPage = () => {
       <div className="content">
         <div className="bg-gray-200">
           {/* <h1>ini nantinya tabel</h1> */}
-          <Table columns={columns} data={filteredData} />
+          <TablePemesanan
+            columns={columns}
+            data={filteredData}
+            onDelete={handleDelete}
+          />
           {/* Pagination */}
           <Pagination
             currentPage={currentPage}
@@ -60,19 +134,6 @@ const DataPemesananPage = () => {
 
 export default DataPemesananPage;
 
-const data = [
-  { No: "1", Name: "John Doe", Age: 28, Status: "Lunas", Job: "Engineer" },
-  {
-    No: "2",
-    Name: "Jane Smith",
-    Age: 34,
-    Status: "Belum Lunas",
-    Job: "Designer",
-  },
-  { No: "3", Name: "Sam Green", Age: 22, Status: "Lunas", Job: "Developer" },
-  { No: "4", Name: "Sam Green", Age: 22, Status: "Lunas", Job: "Developer" },
-  { No: "5", Name: "Sam Green", Age: 22, Status: "Lunas", Job: "Developer" },
-  { No: "6", Name: "Sam Green", Age: 22, Status: "Lunas", Job: "Developer" },
-];
-
-const columns = ["No", "Name", "Age", "Status", "Job", "Aksi"];
+// handleDelete: Fungsi ini menghapus item dari data berdasarkan id yang diterima. Setelah item dihapus, state data diperbarui menggunakan setData.
+// Panggil onDelete: Pada ikon MdDelete, onClick memanggil handleDelete dengan id item yang ingin dihapus.
+// Penggunaan id: Pastikan setiap item dalam data memiliki id unik untuk memudahkan proses penghapusan.
