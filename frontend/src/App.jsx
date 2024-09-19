@@ -6,6 +6,7 @@ import {
 import LoginPage from "./pages/Login.jsx";
 import DashboardPage from "./pages/Dashboard.jsx";
 import DataPemesananPage from "./pages/DataPemesanan.jsx";
+import AddPemesananPage from "./pages/AddPemesananPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: "/data-pemesanan",
     element: <DataPemesananPage />,
+  },
+  {
+    path: "/data-pemesanan/add",
+    element: <AddPemesananPage />,
   },
 ]);
 
