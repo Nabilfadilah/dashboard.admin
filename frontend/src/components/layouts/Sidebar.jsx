@@ -105,7 +105,7 @@ const Sidebar = () => {
               !open && "scale-0"
             }`}
           >
-            <strong>Percetakan Aliza</strong>
+            <strong>Ztaiuan Dashboard</strong>
           </h1>
         </div>
         <br />
