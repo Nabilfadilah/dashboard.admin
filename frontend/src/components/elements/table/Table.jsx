@@ -4,7 +4,7 @@ import { MdEdit } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
-const Table = ({ columns, data }) => {
+const TablePemesanan = ({ columns, data, onDelete }) => {
   return (
     <div className="overflow-x-auto">
       <table className="table-auto min-w-full bg-white border border-gray-300">
@@ -51,7 +51,11 @@ const Table = ({ columns, data }) => {
               <td className="px-4 py-3 text-xl text-gray-700 flex space-x-3">
                 <FaEye className="text-blue-500 cursor-pointer hover:bg-gray-300 rounded" />
                 <MdEdit className="text-yellow-500 cursor-pointer hover:bg-gray-300 rounded" />
-                <MdDelete className="text-red-500 cursor-pointer hover:bg-gray-300 rounded" />
+                {/* Panggil handleDelete dengan id item saat ikon diklik */}
+                <MdDelete
+                  className="text-red-500 cursor-pointer hover:bg-gray-300 rounded"
+                  onClick={() => onDelete(row.id)}
+                />
               </td>
             </tr>
           ))}
@@ -61,7 +65,7 @@ const Table = ({ columns, data }) => {
   );
 };
 
-export default Table;
+export default TablePemesanan;
 
 // opsi pertama mapping data di table body
 {
