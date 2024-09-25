@@ -1,86 +1,173 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayouts from "../components/layouts/AdminLayouts";
 import Button from "../components/elements/button/Button";
 import InputSeacrh from "../components/elements/input/InputSearch";
-import Table from "../components/elements/table/Table";
+// import Table from "../components/elements/table/Table";
 import Pagination from "../components/elements/pagination/Pagination";
 import Dropdown from "../components/elements/button/Dropdown";
 import TablePemesanan from "../components/elements/table/Table";
 import ModalDelete from "../components/elements/popup/ModalDelete";
 import { Link } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
+// import FormEditPemesanan from "../components/fragments/FormEditPemesanan";
+import PopupEditForm from "../components/fragments/FormEdit";
 
 const DataPemesananPage = () => {
-  const [data, setData] = useState([
-    {
-      id: 1,
-      No: "1",
-      Name: "John Doe",
-      Age: 28,
-      Status: "Lunas",
-      Job: "Engineer",
-    },
-    {
-      id: 2,
-      No: "2",
-      Name: "Jane Smith",
-      Age: 34,
-      Status: "Belum Lunas",
-      Job: "Designer",
-    },
-    {
-      id: 3,
-      No: "3",
-      Name: "Sam Green",
-      Age: 22,
-      Status: "Lunas",
-      Job: "Developer",
-    },
-    {
-      id: 4,
-      No: "4",
-      Name: "Sam Green",
-      Age: 22,
-      Status: "Lunas",
-      Job: "Developer",
-    },
-    {
-      id: 5,
-      No: "5",
-      Name: "Sam Green",
-      Age: 22,
-      Status: "Lunas",
-      Job: "Developer",
-    },
-    {
-      id: 6,
-      No: "6",
-      Name: "Sam Green",
-      Age: 22,
-      Status: "Lunas",
-      Job: "Developer",
-    },
-  ]);
-
-  const columns = ["No", "Name", "Age", "Status", "Job", "Aksi"];
-
+  const [selectedId, setSelectedId] = useState(null); // Set awal ke null
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // Tambahkan state ini
+  // const [isEditModalOpen, setEditModalOpen] = useState(false); // Modal tidak terbuka saat halaman dimuat
+  // Set default status filter ke "Semua"
+  const [statusFilter, setStatusFilter] = useState("Semua");
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 5; // Total halaman (misal)
+
+  // saya pakai dumy data
+  const [data, setData] = useState([
+    {
+      id: 1,
+      namaBarang: "Barang 1",
+      tglPemesanan: "yyyy-MM-dd",
+      namaPemesan: "John Doe",
+      noTelepon: "1234567890",
+      hargaSatuan: 10000,
+      jumlahBarang: 2,
+      statusPesanan: "Lunas",
+      jumlahBayar: 20000,
+      sisaBayar: 0,
+      totalBayar: 20000,
+      tglPelunasan: null,
+    },
+    {
+      id: 2,
+      namaBarang: "Barang 2",
+      tglPemesanan: "yyyy-MM-dd",
+      namaPemesan: "John Doe",
+      noTelepon: "1234567890",
+      hargaSatuan: 10000,
+      jumlahBarang: 2,
+      statusPesanan: "Belum Lunas",
+      jumlahBayar: 20000,
+      sisaBayar: 0,
+      totalBayar: 20000,
+      tglPelunasan: null,
+    },
+    {
+      id: 3,
+      namaBarang: "Barang 3",
+      tglPemesanan: "yyyy-MM-dd",
+      namaPemesan: "John Doe",
+      noTelepon: "1234567890",
+      hargaSatuan: 10000,
+      jumlahBarang: 2,
+      statusPesanan: "Belum Lunas",
+      jumlahBayar: 20000,
+      sisaBayar: 0,
+      totalBayar: 20000,
+      tglPelunasan: null,
+    },
+    {
+      id: 4,
+      namaBarang: "Barang 4",
+      tglPemesanan: "yyyy-MM-dd",
+      namaPemesan: "John Doe",
+      noTelepon: "1234567890",
+      hargaSatuan: 10000,
+      jumlahBarang: 2,
+      statusPesanan: "Lunas",
+      jumlahBayar: 20000,
+      sisaBayar: 0,
+      totalBayar: 20000,
+      tglPelunasan: null,
+    },
+    {
+      id: 5,
+      namaBarang: "Barang 5",
+      tglPemesanan: "yyyy-MM-dd",
+      namaPemesan: "John Doe",
+      noTelepon: "1234567890",
+      hargaSatuan: 10000,
+      jumlahBarang: 2,
+      statusPesanan: "Lunas",
+      jumlahBayar: 20000,
+      sisaBayar: 0,
+      totalBayar: 20000,
+      tglPelunasan: null,
+    },
+    {
+      id: 6,
+      namaBarang: "Barang 6",
+      tglPemesanan: "yyyy-MM-dd",
+      namaPemesan: "John Doe",
+      noTelepon: "1234567890",
+      hargaSatuan: 10000,
+      jumlahBarang: 2,
+      statusPesanan: "Lunas",
+      jumlahBayar: 20000,
+      sisaBayar: 0,
+      totalBayar: 20000,
+      tglPelunasan: null,
+    },
+  ]);
+
+  // const handleEdit = (id) => {
+  //   setSelectedId(id); // Mengatur ID yang dipilih
+  //   setEditModalOpen(true); // Membuka modal edit
+  // };
+  // useEffect(() => {
+  //   console.log("Modal Open State:", isEditModalOpen);
+  // }, [isEditModalOpen]);
+
+  // const handleCloseModal = () => {
+  //   setEditModalOpen(false); // Menutup modal edit
+  //   setSelectedId(null); // Mengatur ID yang dipilih ke null
+  // };
+
+  // const columns = [
+  //   "No",
+  //   "namaBarang",
+  //   "tglPemesanan",
+  //   "namaPemesan",
+  //   "noTelepon",
+  //   "hargaSatuan",
+  //   "jumlahBarang",
+  //   "statusPesanan",
+  //   "jumlahBayar",
+  //   "sisaBayar",
+  //   "totalBayar",
+  //   "tglPelunasan",
+  //   "Aksi",
+  // ];
+
+  const handleEdit = (id) => {
+    setSelectedId(id);
+    setIsPopupOpen(true); // Open Popup for edit
+  };
+
+  const handleCloseModal = () => {
+    setIsPopupOpen(false);
+    setSelectedId(null);
+  };
+
+  const handleSave = (values) => {
+    console.log("Saved values:", values);
+    // Tambahkan logika penyimpanan data
+    setIsPopupOpen(false); // Tutup popup setelah menyimpan
+  };
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
   // dropdown menu
-  // Set default status filter ke "Semua"
-  const [statusFilter, setStatusFilter] = useState("Semua");
+  // Daftar opsi untuk dropdown
+  const filterOptions = ["Semua", "Lunas", "Belum Lunas"];
 
   // Filter data berdasarkan status yang dipilih. Jika statusFilter adalah "Semua", tampilkan semua data.
   const filteredData =
     statusFilter === "Semua"
       ? data
-      : data.filter((item) => item.Status === statusFilter);
+      : data.filter((item) => item.statusPesanan === statusFilter);
 
   // handle delete data berdasarkan id
   const handleDelete = async (id) => {
@@ -103,7 +190,7 @@ const DataPemesananPage = () => {
         <div className="bg-gray-300 p-3 rounded px-7 text-fuchsia-900 flex justify-between items-center">
           <span>INI data pemesanan!!</span>
           <Link to="/data-pemesanan/add">
-            <Button className="flex items-center gap-1 bg-green-800 hover:bg-green-700">
+            <Button className="flex items-center gap-1 text-white bg-green-800 hover:bg-green-700">
               <FiPlus strokeWidth={2} className="h-4 w-4" />
               Tambah
             </Button>
@@ -114,7 +201,15 @@ const DataPemesananPage = () => {
       <div className="header pt-3 pb-3">
         <div className="flex justify-between items-center">
           {/* Kirim statusFilter sebagai props ke Dropdown untuk menampilkan status yang dipilih */}
-          <Dropdown onSelect={setStatusFilter} selectedStatus={statusFilter} />
+          {/* <Dropdown onSelect={setStatusFilter} selectedStatus={statusFilter} /> */}
+          {/* Panggil Dropdown dengan opsi status */}
+          <Dropdown
+            onSelect={setStatusFilter}
+            selectedOption={statusFilter}
+            options={filterOptions}
+            placeholder="Filter Status"
+            className="mb-4 w-48"
+          />
           <InputSeacrh placeholder="Cari data pemesanan" name="search" />
         </div>
       </div>
@@ -123,10 +218,30 @@ const DataPemesananPage = () => {
         <div className="bg-gray-200">
           {/* <h1>ini nantinya tabel</h1> */}
           <TablePemesanan
-            columns={columns}
+            // columns={columns}
             data={filteredData}
             onDelete={handleDelete}
+            onEdit={handleEdit}
           />
+          {/* Popup Form */}
+          <PopupEditForm
+            isOpen={isPopupOpen}
+            onClose={handleCloseModal}
+            onSave={handleSave} // Tambahkan fungsi handleSave untuk menyimpan perubahan
+            initialValues={
+              selectedId
+                ? filteredData.find((item) => item.id === selectedId)
+                : { namaBarang: "", namaPemesan: "" }
+            }
+          />
+
+          {/* Form Edit Modal */}
+          {/* <FormEditPemesanan
+            isOpen={isEditModalOpen} // Mengontrol apakah modal terbuka
+            onClose={handleCloseModal} // Fungsi untuk menutup modal
+            selectedId={selectedId} // Mengirimkan ID item yang sedang diedit
+          /> */}
+
           {/* Pagination */}
           <Pagination
             currentPage={currentPage}
