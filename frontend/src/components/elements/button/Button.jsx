@@ -4,7 +4,7 @@ const Button = (props) => {
   // konsep desctrukturing
   const {
     children,
-    className = "bg-black",
+    className = "bg-black text-white",
     onClick = () => {},
     type = "button",
   } = props;
@@ -12,7 +12,7 @@ const Button = (props) => {
     <button
       // className={`h-10 px-6 font-semibold rounded-md ${props.variant} text-black`}
       // konsep desctrukturing
-      className={`h-7 px-4 text-sm rounded-md ${className} text-white`}
+      className={`h-7 px-4 text-sm rounded-md ${className}`}
       type={type}
       // event handler
       onClick={onClick}
