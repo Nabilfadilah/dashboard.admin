@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import InputForm from "../elements/input/InputForm";
 import Button from "../elements/button/Button";
-import { useFormik } from "formik";
+import { ErrorMessage, useFormik } from "formik";
 import * as Yup from "yup"; // Import Yup untuk validasi
 import ModalAdd from "../../components/elements/popup/ModalAdd";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { BsCalendar2Date } from "react-icons/bs";
+import { id } from "date-fns/locale";
+import { format, parseISO } from "date-fns";
+import Dropdown from "../elements/button/Dropdown";
+import Label from "../elements/input/Label";
+import { NumericFormat } from "react-number-format";
+import Input from "../elements/input/Input";
 
 // Validasi form menggunakan Yup
 const validationSchema = Yup.object().shape({
@@ -27,11 +36,11 @@ const FormAddPemesanan = () => {
   const formik = useFormik({
     initialValues: {
       namaBarang: "",
-      tglPemesanan: "",
+      tglPemesanan: format(new Date(), "yyyy-MM-dd"), // Mengatur tanggal sekarang,
       namaPemesan: "",
       noTelepon: "",
       hargaSatuan: "",
-      jumlahBarang: "",
+      jumlahBarang: null,
       statusPesanan: "",
       jumlahBayar: "",
       sisaBayar: "",
@@ -52,6 +61,40 @@ const FormAddPemesanan = () => {
     },
   });
 
+  // Fungsi untuk mengkonversi string ke objek Date
+  const handleDateChange = (date, fieldName) => {
+    const formattedDate = date ? format(date, "yyyy-MM-dd") : "";
+    formik.setFieldValue(fieldName, formattedDate);
+
+    // Hapus pesan kesalahan saat tanggal diatur
+    formik.setFieldError(fieldName, "");
+    console.log(handleDateChange);
+  };
+
+  // Fungsi useeffect untuk tgl pelunasan agar otomatis terisi
+  useEffect(() => {
+    // Jika status berubah menjadi "lunas" dan tglPelunasan masih kosong
+    if (
+      formik.values.statusPesanan === "Lunas" &&
+      !formik.values.tglPelunasan
+    ) {
+      // Mengatur tglPelunasan ke tanggal hari ini
+      formik.setFieldValue("tglPelunasan", new Date().toISOString());
+    } else if (formik.values.statusPesanan !== "Lunas") {
+      // Jika status bukan "lunas", hapus nilai tglPelunasan
+      formik.setFieldValue("tglPelunasan", "");
+    }
+  }, [formik.values.statusPesanan]); // Hanya menjalankan efek ketika status berubah
+
+  // Fungsi useEfect untuk hargaSatuan x jumlah = totalBayar
+  useEffect(() => {
+    const { hargaSatuan, jumlahBarang } = formik.values;
+    if (hargaSatuan && jumlahBarang) {
+      const bayarTotal = parseFloat(hargaSatuan) * parseFloat(jumlahBarang);
+      formik.setFieldValue("totalBayar", bayarTotal);
+    }
+  }, [formik.values.hargaSatuan, formik.values.jumlahBarang]);
+
   return (
     <div className="w-full bg-gray-200 mt-3 rounded">
       <form
@@ -61,44 +104,52 @@ const FormAddPemesanan = () => {
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
           <div>
-            <div className="mb-0">
-              <InputForm
-                className="w-full"
-                name="namaBarang"
-                label="Nama Barang"
-                type="text"
-                placeholder="John Doe"
-                value={formik.values.namaBarang}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.namaBarang && formik.errors.namaBarang} // Meneruskan kondisi error
+            {/* Nama Barang Dropdown */}
+            <div className="mb-2">
+              <Label htmlFor="namaBarang">Nama Barang</Label>
+              <Dropdown
+                id="namaBarang"
+                onSelect={(value) => formik.setFieldValue("namaBarang", value)}
+                selectedOption={formik.values.namaBarang}
+                options={opsiNamaBarang}
+                placeholder="Pilih Nama Barang"
+                className="w-full h-10 text-black border rounded focus:outline-none focus:border-blue-500" // Sesuaikan dengan styling input lainnya
               />
-              {/* {formik.touched.namaBarang && formik.errors.namaBarang && (
-                <span className="text-sm text-red-500 mt-0">
+              {formik.touched.namaBarang && formik.errors.namaBarang && (
+                <span className="text-red-600 text-sm">
                   {formik.errors.namaBarang}
-                </span> // Pesan error mepet dengan input
-              )} */}
+                </span>
+              )}
             </div>
 
             <div className="mb-0">
-              <InputForm
-                className="w-full"
-                name="tglPemesanan"
-                label="Tgl Pemesanan"
-                type="text"
-                placeholder="yyyy-mm-dd"
-                value={formik.values.tglPemesanan}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={
-                  formik.touched.tglPemesanan && formik.errors.tglPemesanan
-                }
-              />
-              {/* {formik.touched.tglPemesanan && formik.errors.tglPemesanan && (
-                <span className="text-sm text-red-500">
-                  {formik.errors.tglPemesanan}
-                </span> // Pesan error mepet dengan input
-              )} */}
+              <div>
+                <DatePicker
+                  selected={
+                    formik.values.tglPemesanan
+                      ? parseISO(formik.values.tglPemesanan)
+                      : null
+                  }
+                  onChange={(date) => handleDateChange(date, "tglPemesanan")}
+                  dateFormat="dd-MM-yyyy"
+                  locale={id}
+                  disabled
+                  customInput={
+                    <InputForm
+                      className="w-full"
+                      name="tglPemesanan"
+                      label="Tgl Pemesanan"
+                      disabled
+                      onBlur={formik.handleBlur}
+                      error={
+                        formik.touched.tglPemesanan &&
+                        formik.errors.tglPemesanan
+                      }
+                    />
+                  }
+                />
+                {/* <BsCalendar2Date /> */}
+              </div>
             </div>
 
             <div className="mb-0">
@@ -113,11 +164,11 @@ const FormAddPemesanan = () => {
                 onBlur={formik.handleBlur}
                 error={formik.touched.namaPemesan && formik.errors.namaPemesan}
               />
-              {/* {formik.touched.namaPemesan && formik.errors.namaPemesan && (
-                <span className="text-sm text-red-500">
-                  {formik.errors.namaPemesan}
-                </span> // Pesan error mepet dengan input
-              )} */}
+              {/* <ErrorMessage
+                name="namaPemesan"
+                component="div"
+                className="text-red-500 text-sm"
+              /> */}
             </div>
 
             <div className="mb-0">
@@ -132,30 +183,33 @@ const FormAddPemesanan = () => {
                 onBlur={formik.handleBlur}
                 error={formik.touched.noTelepon && formik.errors.noTelepon}
               />
-              {/* {formik.touched.noTelepon && formik.errors.noTelepon && (
-                <span className="text-sm text-red-500">
-                  {formik.errors.noTelepon}
-                </span> // Pesan error mepet dengan input
-              )} */}
             </div>
 
-            <div className="mb-0">
-              <InputForm
+            <div className="mb-3">
+              <Label htmlFor="hargaSatuan">Harga Satuan</Label>
+              <NumericFormat
+                id="hargaSatuan"
                 className="w-full"
+                placeholder="Rp "
+                size="sm"
                 name="hargaSatuan"
-                label="Harga Satuan"
-                type="text"
-                placeholder="100000"
+                thousandSeparator={true}
+                prefix={"Rp "}
+                customInput={Input}
+                onValueChange={(values) => {
+                  const { value } = values;
+                  formik.setFieldValue("hargaSatuan", value);
+                }}
                 value={formik.values.hargaSatuan}
-                onChange={formik.handleChange}
+                error={
+                  formik.touched.hargaSatuan &&
+                  Boolean(formik.errors.hargaSatuan)
+                }
+                helperText={
+                  formik.touched.hargaSatuan && formik.errors.hargaSatuan
+                }
                 onBlur={formik.handleBlur}
-                error={formik.touched.hargaSatuan && formik.errors.hargaSatuan}
               />
-              {/* {formik.touched.hargaSatuan && formik.errors.hargaSatuan && (
-                <span className="text-sm text-red-500">
-                  {formik.errors.hargaSatuan}
-                </span> // Pesan error mepet dengan input
-              )} */}
             </div>
 
             <div className="mb-0">
@@ -172,105 +226,133 @@ const FormAddPemesanan = () => {
                   formik.touched.jumlahBarang && formik.errors.jumlahBarang
                 }
               />
-              {/* {formik.touched.jumlahBarang && formik.errors.jumlahBarang && (
-                <span className="text-sm text-red-500">
-                  {formik.errors.jumlahBarang}
-                </span> // Pesan error mepet dengan input
-              )} */}
             </div>
           </div>
 
           <div>
             <div className="mb-0">
-              <InputForm
-                className="w-full"
-                name="statusPesanan"
-                label="Status Pesanan"
-                type="text"
-                placeholder="Lunas"
-                value={formik.values.statusPesanan}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={
-                  formik.touched.statusPesanan && formik.errors.statusPesanan
+              <Label htmlFor="statusPesanan">Status Pemesanan</Label>
+              <Dropdown
+                id="statusPesanan"
+                onSelect={(value) =>
+                  formik.setFieldValue("statusPesanan", value)
                 }
+                selectedOption={formik.values.statusPesanan}
+                options={opsiStatus}
+                placeholder="Pilih Status Pesanan"
+                className="w-full h-10 text-black border rounded focus:outline-none focus:border-blue-500" // Sesuaikan dengan styling input lainnya
               />
-              {/* {formik.touched.statusPesanan && formik.errors.statusPesanan && (
-                <span className="text-sm text-red-500">
+              {formik.touched.statusPesanan && formik.errors.statusPesanan && (
+                <span className="text-red-600 text-sm">
                   {formik.errors.statusPesanan}
-                </span> // Pesan error mepet dengan input
-              )} */}
+                </span>
+              )}
             </div>
 
-            <div className="mb-0">
-              <InputForm
+            <div className="mb-3">
+              <Label htmlFor="totalBayar">Total Bayar</Label>
+              <NumericFormat
+                id="totalBayar"
                 className="w-full"
+                placeholder="Rp "
+                size="sm"
                 name="totalBayar"
-                label="Total Bayar"
-                type="text"
-                placeholder="1000000"
+                thousandSeparator={true}
+                prefix={"Rp "}
+                customInput={Input}
+                disabled
+                onValueChange={(values) => {
+                  const { value } = values;
+                  formik.setFieldValue("totalBayar", value);
+                }}
                 value={formik.values.totalBayar}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.totalBayar && formik.errors.totalBayar}
-              />
-              {/* {formik.touched.totalBayar && formik.errors.totalBayar && (
-                <span className="text-sm text-red-500">
-                  {formik.errors.totalBayar}
-                </span> // Pesan error mepet dengan input
-              )} */}
-            </div>
-
-            <div className="mb-0">
-              <InputForm
-                className="w-full"
-                name="jumlahBayar"
-                label="Jumlah Bayar"
-                type="text"
-                placeholder="500000"
-                value={formik.values.jumlahBayar}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.jumlahBayar && formik.errors.jumlahBayar}
-              />
-              {/* {formik.touched.jumlahBayar && formik.errors.jumlahBayar && (
-                <span className="text-sm text-red-500">
-                  {formik.errors.jumlahBayar}
-                </span> // Pesan error mepet dengan input
-              )} */}
-            </div>
-
-            <div className="mb-0">
-              <InputForm
-                className="w-full"
-                name="sisaBayar"
-                label="Sisa Bayar"
-                type="text"
-                placeholder="500000"
-                value={formik.values.sisaBayar}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.sisaBayar && formik.errors.sisaBayar}
-              />
-              {/* {formik.touched.sisaBayar && formik.errors.sisaBayar && (
-                <span className="text-sm text-red-500">
-                  {formik.errors.sisaBayar}
-                </span> // Pesan error mepet dengan input
-              )} */}
-            </div>
-
-            <div className="mb-0">
-              <InputForm
-                className="w-full"
-                name="tglPelunasan"
-                label="Tgl Pelunasan"
-                type="text"
-                placeholder="yyyy-mm-dd"
-                value={formik.values.tglPelunasan}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
                 error={
-                  formik.touched.tglPelunasan && formik.errors.tglPelunasan
+                  formik.touched.totalBayar && Boolean(formik.errors.totalBayar)
+                }
+                helperText={
+                  formik.touched.totalBayar && formik.errors.totalBayar
+                }
+                onBlur={formik.handleBlur}
+              />
+            </div>
+
+            <div className="mb-3">
+              <Label htmlFor="jumlahBayar">Jumlah Bayar</Label>
+              <NumericFormat
+                id="jumlahBayar"
+                className="w-full"
+                placeholder="Rp "
+                size="sm"
+                name="jumlahBayar"
+                thousandSeparator={true}
+                prefix={"Rp "}
+                customInput={Input}
+                onValueChange={(values) => {
+                  const { value } = values;
+                  formik.setFieldValue("jumlahBayar", value);
+                }}
+                value={formik.values.jumlahBayar}
+                error={
+                  formik.touched.jumlahBayar &&
+                  Boolean(formik.errors.jumlahBayar)
+                }
+                helperText={
+                  formik.touched.jumlahBayar && formik.errors.jumlahBayar
+                }
+                onBlur={formik.handleBlur}
+              />
+            </div>
+
+            <div className="mb-3">
+              <Label htmlFor="sisaBayar">Sisa Bayar</Label>
+              <NumericFormat
+                id="sisaBayar"
+                className="w-full"
+                placeholder="Rp "
+                size="sm"
+                name="sisaBayar"
+                thousandSeparator={true}
+                prefix={"Rp "}
+                customInput={Input}
+                onValueChange={(values) => {
+                  const { value } = values;
+                  formik.setFieldValue("sisaBayar", value);
+                }}
+                value={formik.values.sisaBayar}
+                error={
+                  formik.touched.sisaBayar && Boolean(formik.errors.sisaBayar)
+                }
+                helperText={formik.touched.sisaBayar && formik.errors.sisaBayar}
+                onBlur={formik.handleBlur}
+              />
+            </div>
+
+            <div className="mb-0">
+              <DatePicker
+                selected={
+                  formik.values.tglPelunasan
+                    ? parseISO(formik.values.tglPelunasan)
+                    : null
+                }
+                onChange={(date) => handleDateChange(date, "tglPelunasan")}
+                dateFormat="dd-MM-yyyy"
+                locale={id}
+                disabled={
+                  formik.values.statusPesanan === "Lunas" ||
+                  formik.values.statusPesanan === "Belum Lunas"
+                }
+                customInput={
+                  <InputForm
+                    InputForm
+                    className="w-full"
+                    name="tglPelunasan"
+                    label="Tgl Pelunasan"
+                    disabled
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.tglPelunasan && formik.errors.tglPelunasan
+                    }
+                  />
                 }
               />
             </div>
@@ -280,7 +362,7 @@ const FormAddPemesanan = () => {
         <div className="text-center pb-3">
           <Button
             type="submit"
-            className="bg-green-700 hover:bg-green-600 font-bold"
+            className="bg-green-700 hover:bg-green-600 font-bold text-white"
             disabled={formik.isSubmitting}
           >
             Simpan
@@ -292,3 +374,7 @@ const FormAddPemesanan = () => {
 };
 
 export default FormAddPemesanan;
+
+const opsiNamaBarang = ["Kartu undangan", "Kalender", "Banner", "X banner"];
+
+const opsiStatus = ["Lunas", "Belum Lunas"];
