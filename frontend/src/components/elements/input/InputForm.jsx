@@ -78,6 +78,8 @@ const InputForm = forwardRef((props, ref) => {
     onBlur,
     value,
     error,
+    disabled,
+    list,
   } = props;
 
   return (
@@ -95,6 +97,8 @@ const InputForm = forwardRef((props, ref) => {
         onBlur={onBlur}
         value={value}
         error={error}
+        disabled={disabled}
+        list={list}
       />
     </div>
   );

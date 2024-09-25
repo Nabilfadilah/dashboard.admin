@@ -29,6 +29,8 @@ const Input = forwardRef((props, ref) => {
     onBlur,
     value,
     className = "w-80", // Kelas bawaan yang dapat diubah
+    disabled,
+    list,
   } = props;
 
   return (
@@ -44,6 +46,8 @@ const Input = forwardRef((props, ref) => {
       onChange={onChange}
       onBlur={onBlur}
       value={value}
+      disabled={disabled}
+      list={list}
     />
   );
 });
