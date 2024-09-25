@@ -113,9 +113,7 @@ const Sidebar = () => {
         <ul className="pt-6 flex flex-col flex-grow">
           <li
             className={`flex rounded-md p-2 text-gray-300 text-sm items-center gap-x-4 mt-2 font-sans font-bold ${
-              isActiveLink("/dashboard")
-                ? "bg-light-white"
-                : "hover:bg-light-white"
+              isActiveLink("/dashboard") ? "bg-lime-700" : "hover:bg-slate-600"
             }`}
           >
             <NavLink
@@ -132,8 +130,8 @@ const Sidebar = () => {
           <li
             className={`flex rounded-md p-2 text-gray-300 text-sm items-center gap-x-4 mt-9 font-sans font-bold ${
               isActiveLink("/data-pemesanan")
-                ? "bg-light-white"
-                : "hover:bg-light-white"
+                ? "bg-lime-700"
+                : "hover:bg-slate-600"
             }`}
           >
             <NavLink
@@ -148,7 +146,7 @@ const Sidebar = () => {
           </li>
 
           {/* Logout Button */}
-          <li className="flex rounded-md p-2 text-gray-300 text-sm items-center gap-x-4 mt-auto font-sans font-bold hover:bg-light-white">
+          <li className="flex rounded-md p-2 text-gray-300 text-sm items-center gap-x-4 mt-auto font-sans font-bold hover:bg-lime-700">
             <button
               className="flex items-center gap-x-4 w-full"
               onClick={handleLogoutClick}
